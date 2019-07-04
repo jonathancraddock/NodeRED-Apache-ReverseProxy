@@ -42,7 +42,7 @@ The conf below is working ok. I'd like to enable TLSv1.3, but at he time of writ
   SSLOptions +FakeBasicAuth +ExportCertData +StrictRequire
   SSLCipherSuite "HIGH:!aNULL:!MD5:!3DES:!CAMELLIA:!AES128"
 
-  Header always set Strict-Transport-Security "max-age=31536000; includeS$
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
   Header always set X-Frame-Options SAMEORIGIN
   Header always set X-Content-Type-Options nosniff
 
