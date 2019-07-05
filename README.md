@@ -1,8 +1,8 @@
 # NodeRED with an Apache Reverse Proxy
 
-I found it quite difficult to find good setup guides for anyone wanting to put NodeRED behind an Apache reverse proxy. The following config certainly works, but with the disclaimer that it probably does require some further fine-tuning.
+There are plenty of guides for NodeRED and Nginx, but if you want to put NodeRED behind an Apache reverse proxy it's much harder to find any easy to follow guides. I can confirm the following config certainly works, but with a small disclaimer that it probably does require some further fine-tuning.
 
-In particular, several otherwise very helpful guides don't mention *web sockets*, and a couple that do include that info don't remind you to enable proxy_wstunnel. (Yes, it sounds obvious now, but I didn't find the errors very informative!)
+There were a few very helpful guides that don't mention *web sockets*. And, a couple that do remember to include that info don't remind you to enable proxy_wstunnel. Yes... it sounds obvious now, but I didn't find the errors very informative! ;-)
 
 ## Apache Modules
 
@@ -37,7 +37,7 @@ ServerName nodered.example.com
 	SSLCompression off
 
 	SSLOpenSSLConfCmd Protocol "-ALL, TLSv1.2"
-    SSLOpenSSLConfCmd DHParameters "/etc/ssl/certs/dhparam.pem"
+        SSLOpenSSLConfCmd DHParameters "/etc/ssl/certs/dhparam.pem"
 
 	SSLProtocol -all +TLSv1.2 
 	# +TLSv1.3
@@ -57,11 +57,30 @@ ServerName nodered.example.com
 	ProxyPass               /             http://127.0.0.1:1880/
 	ProxyPassReverse        /             http://127.0.0.1:1880/
 
-
 	SSLCertificateFile /etc/letsencrypt/live/nodered.example.com/fullchain.pem
 	SSLCertificateKeyFile /etc/letsencrypt/live/nodered.example.com/privkey.pem
 	Include /etc/letsencrypt/options-ssl-apache.conf
 
 </VirtualHost>
 </IfModule>
+```
+
+Also worth noting that the `Include /etc/letsencrypt/options-ssl-apache.conf` (which is added automatically by Certbot) modifies the SSL protocols and other settings.
+
+```bash
+# Intermediate configuration, tweak to your needs
+
+#SSLProtocol             all -SSLv2 -SSLv3
+#SSLCipherSuite          ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1$
+#SSLHonorCipherOrder     on
+#SSLCompression          off
+```
+
+I chose to comment out the lines in their *intermediate configuration* section as I had already set my own preferences and didn't want them being messed about.
+
+A final note, SSL Stapling cannot be added in the virtual host conf and should be added to the `...mods-available/ssl.conf` file.
+
+```bash
+SSLUseStapling On
+SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
 ```
